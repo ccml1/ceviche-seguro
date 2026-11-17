@@ -1,0 +1,69 @@
+erDiagram
+  USUARIOS ||--o{ PUESTOS : "es dueño de (vendedor)"
+  DISTRITOS ||--o{ PUESTOS : "ubica"
+  PUESTOS ||--o{ LICENCIAS : "tiene"
+  PUESTOS ||--o{ CONTROLES_FRIO : "registra"
+  USUARIOS ||--o{ CONTROLES_FRIO : "registrado_por"
+  PUESTOS ||--o{ INSPECCIONES : "recibe"
+  USUARIOS ||--o{ INSPECCIONES : "realiza (inspector)"
+  PUESTOS ||--o{ REPORTES : "es reportado en"
+  USUARIOS |o--o{ REPORTES : "atiende"
+  USUARIOS {
+    int id PK
+    varchar nombre
+    varchar email UK
+    varchar password_hash
+    varchar rol "admin | inspector | vendedor"
+    timestamptz creado_en
+  }
+  DISTRITOS {
+    int id PK
+    varchar nombre UK
+  }
+  PUESTOS {
+    int id PK
+    int vendedor_id FK
+    int distrito_id FK
+    varchar nombre_comercial
+    varchar tipo "carretilla | puesto_fijo | ambulante"
+    varchar direccion_referencia
+    numeric latitud
+    numeric longitud
+    varchar producto_declarado "pota | pescado | mixto"
+    varchar estado "pendiente | verificado | observado | suspendido"
+  }
+  LICENCIAS {
+    int id PK
+    int puesto_id FK
+    varchar tipo "licencia_municipal | carnet_sanidad"
+    varchar numero "UK con tipo"
+    date fecha_emision
+    date fecha_vencimiento
+    varchar archivo "blob privado"
+  }
+  CONTROLES_FRIO {
+    int id PK
+    int puesto_id FK
+    int registrado_por FK
+    numeric temperatura_c
+    boolean tiene_hielo
+    timestamptz hora_registro
+  }
+  INSPECCIONES {
+    int id PK
+    int puesto_id FK
+    int inspector_id FK
+    timestamptz fecha
+    numeric temperatura_c
+    boolean higiene_ok
+    boolean rotulado_veraz
+    varchar resultado "aprobado | observado | clausurado"
+  }
+  REPORTES {
+    int id PK
+    int puesto_id FK
+    varchar tipo "producto_no_declarado | malestar | sin_licencia | higiene"
+    varchar descripcion
+    varchar estado "abierto | en_revision | cerrado"
+    int atendido_por FK
+  }
