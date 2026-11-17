@@ -64,8 +64,8 @@ else
     --subnet "$SUBNET_DB_ID" --private-dns-zone "$ZONA_ID" --yes -o none
 fi
 # --database-name ya solo aplica a clústeres elásticos: la base se crea aparte.
-az postgres flexible-server db show -g "$RG" -s "$DB" -d "$DB_NAME" -o none 2>/dev/null || \
-  az postgres flexible-server db create -g "$RG" -s "$DB" -d "$DB_NAME" -o none
+az postgres flexible-server db show -g "$RG" --server-name "$DB" --name "$DB_NAME" -o none 2>/dev/null || \
+  az postgres flexible-server db create -g "$RG" --server-name "$DB" --name "$DB_NAME" -o none
 
 echo ">> Almacenamiento de archivos (Blob Storage privado)"
 az storage account create -g "$RG" -n "$STORAGE" -l "$REGION" --sku Standard_LRS \
