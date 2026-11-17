@@ -1,0 +1,29 @@
+:root { --fondo: #f6f7f9; --texto: #1d2733; --borde: #d5dbe3; --primario: #0b6e8a; --verde: #1e8e3e; --amarillo: #b98900; --rojo: #c5221f; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--fondo); color: var(--texto); }
+header { background: #fff; border-bottom: 1px solid var(--borde); padding: 16px; }
+header h1 { margin: 0 0 4px; font-size: 1.5rem; color: var(--primario); }
+header p { margin: 0 0 12px; max-width: 70ch; }
+nav { display: flex; gap: 8px; flex-wrap: wrap; }
+main { padding: 16px; max-width: 1100px; margin: 0 auto; }
+button { background: var(--primario); color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; font: inherit; }
+button.secundario, .tab { background: #e8eef3; color: var(--texto); }
+.tab.activa { background: var(--primario); color: #fff; }
+.oculto { display: none !important; }
+.filtros { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; }
+label.check { flex-direction: row; align-items: center; }
+input, select, textarea { font: inherit; padding: 6px 8px; border: 1px solid var(--borde); border-radius: 6px; background: #fff; }
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.tarjeta { background: #fff; border: 1px solid var(--borde); border-radius: 8px; padding: 12px; border-left: 6px solid var(--borde); }
+.tarjeta.verde { border-left-color: var(--verde); } .tarjeta.amarillo { border-left-color: var(--amarillo); } .tarjeta.rojo { border-left-color: var(--rojo); }
+.tarjeta h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.sello { display: inline-block; font-weight: 600; padding: 2px 8px; border-radius: 99px; color: #fff; font-size: .8rem; }
+.sello.verde { background: var(--verde); } .sello.amarillo { background: var(--amarillo); } .sello.rojo { background: var(--rojo); }
+.tarjeta ul { margin: 8px 0 0; padding-left: 18px; font-size: .85rem; }
+.formulario { background: #fff; border: 1px solid var(--borde); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; max-width: 480px; }
+.columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+.mensaje { min-height: 1.2em; font-weight: 600; }
+.mensaje.error { color: var(--rojo); } .mensaje.ok { color: var(--verde); }
+.ayuda { font-size: .8rem; color: #5b6673; margin: 0; }
+.reporte { background: #fff; border: 1px solid var(--borde); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: .9rem; }
