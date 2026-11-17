@@ -29,6 +29,8 @@ STORAGE="st$(echo "${APP}" | tr -cd 'a-z0-9' | cut -c1-18)"
 DB_PASSWORD="${DB_PASSWORD:-$(openssl rand -base64 24 | tr -dc 'A-Za-z0-9' | cut -c1-20)Aa1!}"
 JWT_SECRET="$(openssl rand -hex 32)"
 
+az config set extension.use_dynamic_install=yes_without_prompt >/dev/null 2>&1 || true
+
 echo ">> Registrando proveedores (solo la primera vez tarda)"
 for ns in Microsoft.Web Microsoft.DBforPostgreSQL Microsoft.Storage Microsoft.Network Microsoft.Insights Microsoft.OperationalInsights; do
   az provider register --namespace "$ns" --wait >/dev/null
@@ -36,17 +38,32 @@ done
 
 echo ">> Grupo de recursos y red"
 az group create -n "$RG" -l "$REGION" -o none
-az network vnet create -g "$RG" -n "$VNET" --address-prefixes 10.10.0.0/16 \
-  --subnet-name snet-app --subnet-prefixes 10.10.1.0/24 -o none
-az network vnet subnet update -g "$RG" --vnet-name "$VNET" -n snet-app \
+az network vnet show -g "$RG" -n "$VNET" -o none 2>/dev/null || \
+  az network vnet create -g "$RG" -n "$VNET" --address-prefixes 10.10.0.0/16 -o none
+az network vnet subnet create -g "$RG" --vnet-name "$VNET" -n snet-app --address-prefixes 10.10.1.0/24 \
   --delegations Microsoft.Web/serverFarms -o none
 
+echo ">> Subred y DNS privado para PostgreSQL"
+# Desde Azure CLI 2.87 'flexible-server create' ya no crea la red: se crea aquí y se le pasa por ID.
+az network vnet subnet create -g "$RG" --vnet-name "$VNET" -n snet-db --address-prefixes 10.10.2.0/24 \
+  --delegations Microsoft.DBforPostgreSQL/flexibleServers -o none
+SUBNET_DB_ID=$(az network vnet subnet show -g "$RG" --vnet-name "$VNET" -n snet-db --query id -o tsv)
+ZONA="${DB}.private.postgres.database.azure.com"
+az network private-dns zone show -g "$RG" -n "$ZONA" -o none 2>/dev/null || az network private-dns zone create -g "$RG" -n "$ZONA" -o none
+az network private-dns link vnet show -g "$RG" -z "$ZONA" -n link-db -o none 2>/dev/null || \
+  az network private-dns link vnet create -g "$RG" -z "$ZONA" -n link-db -v "$VNET" -e false -o none
+ZONA_ID=$(az network private-dns zone show -g "$RG" -n "$ZONA" --query id -o tsv)
+
 echo ">> PostgreSQL Flexible Server con acceso privado (tarda 5 a 10 minutos)"
-az postgres flexible-server create -g "$RG" -n "$DB" -l "$REGION" \
-  --tier Burstable --sku-name Standard_B1ms --storage-size 32 --version 16 \
-  --admin-user "$DB_ADMIN" --admin-password "$DB_PASSWORD" \
-  --vnet "$VNET" --subnet snet-db --address-prefixes 10.10.0.0/16 --subnet-prefixes 10.10.2.0/24 \
-  --database-name "$DB_NAME" --yes -o none
+if az postgres flexible-server show -g "$RG" -n "$DB" -o none 2>/dev/null; then
+  echo "   ya existe ${DB}, se reutiliza (si no tienes su contraseña: az postgres flexible-server update -g $RG -n $DB --admin-password <nueva>)"
+else
+  az postgres flexible-server create -g "$RG" -n "$DB" -l "$REGION" \
+    --tier Burstable --sku-name Standard_B1ms --storage-size 32 --version 16 \
+    --admin-user "$DB_ADMIN" --admin-password "$DB_PASSWORD" \
+    --subnet "$SUBNET_DB_ID" --private-dns-zone "$ZONA_ID" \
+    --database-name "$DB_NAME" --yes -o none
+fi
 
 echo ">> Almacenamiento de archivos (Blob Storage privado)"
 az storage account create -g "$RG" -n "$STORAGE" -l "$REGION" --sku Standard_LRS \
