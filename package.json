@@ -1,0 +1,42 @@
+{
+  "name": "ceviche-seguro",
+  "version": "1.0.0",
+  "description": "MVP Caso 4 PFC III: registro y verificación sanitaria de vendedores de ceviche de pota",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node db/migrate.js",
+    "test": "jest --runInBand",
+    "test:unit": "jest --runInBand tests/unit",
+    "test:int": "jest --runInBand tests/integration",
+    "check": "node --check src/server.js && node --check src/app.js",
+    "capturas": "node scripts/capturas.js",
+    "diagramas": "bash scripts/diagramas.sh",
+    "informe": "node docs/informe/build.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/"
+    ]
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.34.0",
+    "bcryptjs": "^3.0.3",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "docx": "^9.15.4",
+    "jest": "^30.5.2",
+    "supertest": "^7.3.2"
+  }
+}
