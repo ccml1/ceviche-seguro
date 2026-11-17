@@ -1,0 +1,29 @@
+gitGraph
+  commit id: "init"
+  branch develop
+  checkout develop
+  branch feature/CS-1-modelo-datos
+  commit id: "CS-1 feat: esquema 3FN"
+  checkout develop
+  merge feature/CS-1-modelo-datos id: "PR #1"
+  branch feature/CS-2-consulta-publica
+  commit id: "CS-2 feat: consulta + sello"
+  checkout develop
+  merge feature/CS-2-consulta-publica id: "PR #2"
+  branch feature/CS-10-pipeline-cicd
+  commit id: "CS-10 ci: pipeline"
+  checkout develop
+  merge feature/CS-10-pipeline-cicd id: "PR #3"
+  checkout main
+  merge develop id: "PR #4 release Sprint 1" tag: "sprint-1"
+  checkout develop
+  branch feature/CS-3-autenticacion
+  commit id: "CS-3 feat: JWT y roles"
+  checkout develop
+  merge feature/CS-3-autenticacion id: "PR #5"
+  branch feature/CS-8-reportes
+  commit id: "CS-8 feat: reportes"
+  checkout develop
+  merge feature/CS-8-reportes id: "PR #6"
+  checkout main
+  merge develop id: "PR #7 release Sprint 2" tag: "sprint-2"
