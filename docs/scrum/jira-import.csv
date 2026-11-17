@@ -1,0 +1,76 @@
+Issue Type,Summary,Description,Story Points,Priority,Sprint,Labels
+Story,CS-1 un modelo de datos relacional normalizado con datos de prueba,"Como equipo de desarrollo, quiero un modelo de datos relacional normalizado con datos de prueba, para que todas las historias guarden puestos, licencias, controles e inspecciones sin duplicar información.
+
+Criterios de aceptación:
+- Dado el script de migración, cuando se ejecuta dos veces, entonces no falla ni duplica datos
+- Dada la base creada, cuando se consulta, entonces existen 7 tablas en 3FN con claves foráneas y restricciones CHECK
+- Dados los datos demo, cuando se listan los puestos, entonces hay al menos un puesto verde, uno amarillo y uno rojo",5,Highest,Sprint 1,Plataforma_y_DevOps
+Story,CS-2 buscar puestos de ceviche por distrito y ver su sello sanitario y el p,"Como consumidor, quiero buscar puestos de ceviche por distrito y ver su sello sanitario y el producto que declaran, para decidir dónde comer sin arriesgar mi salud ni que me vendan pota como pescado.
+
+Criterios de aceptación:
+- Dado un distrito, cuando filtro, entonces veo solo los puestos de ese distrito con su sello verde, amarillo o rojo
+- Dado un puesto con licencia vencida, cuando lo consulto, entonces su sello es rojo y se muestra el motivo
+- Dado un puesto cuyo último control de frío supera 4 °C, cuando lo consulto, entonces su sello no es verde
+- Dado cualquier puesto, cuando lo veo, entonces se muestra si vende ceviche de pota, de pescado o mixto",8,Highest,Sprint 1,Transparencia_para_el_consumidor
+Story,"CS-10 un pipeline de GitHub Actions que construya, pruebe y despliegue","Como equipo de desarrollo, quiero un pipeline de GitHub Actions que construya, pruebe y despliegue, para integrar cambios sin romper producción y desplegar sin pasos manuales.
+
+Criterios de aceptación:
+- Dado un Pull Request hacia develop o main, cuando se abre, entonces corren las pruebas unitarias e integración con PostgreSQL
+- Dado un push a main con pruebas en verde, cuando termina el CI, entonces se despliega a Azure App Service
+- Dado el despliegue, cuando termina, entonces /health responde 200 (prueba de humo)
+- Dada una dependencia con vulnerabilidad alta, cuando corre el CI, entonces el pipeline falla",5,Highest,Sprint 1,Plataforma_y_DevOps
+Story,"CS-11 la infraestructura en Azure (App Service, PostgreSQL Flexible, Blob, V","Como equipo de desarrollo, quiero la infraestructura en Azure (App Service, PostgreSQL Flexible, Blob, VNet), para tener el sistema en una URL pública con base de datos privada.
+
+Criterios de aceptación:
+- Dado el script de infraestructura, cuando se ejecuta en una región permitida, entonces crea todos los recursos
+- Dada la base de datos, cuando se intenta conectar desde internet, entonces no es accesible (solo desde la VNet)
+- Dada la URL pública, cuando se abre, entonces carga la aplicación por HTTPS",3,Highest,Sprint 1,Plataforma_y_DevOps
+Story,CS-3 registrarme e iniciar sesión,"Como vendedor, quiero registrarme e iniciar sesión, para gestionar mi puesto y que solo yo pueda modificarlo.
+
+Criterios de aceptación:
+- Dado un correo nuevo y una clave de 8 o más caracteres, cuando me registro, entonces se crea mi cuenta con rol vendedor
+- Dadas credenciales incorrectas, cuando inicio sesión, entonces recibo un error sin revelar cuál dato falló
+- Dado un vendedor, cuando intenta registrar una inspección, entonces recibe 403",5,Highest,Sprint 2,Formalización_del_vendedor
+Story,"CS-4 registrar mi puesto con su distrito, tipo y el producto que vendo","Como vendedor, quiero registrar mi puesto con su distrito, tipo y el producto que vendo, para aparecer en el buscador y empezar mi formalización.
+
+Criterios de aceptación:
+- Dado un vendedor autenticado, cuando registra su puesto, entonces queda en estado pendiente y sello rojo
+- Dado un producto distinto de pota, pescado o mixto, cuando registra, entonces recibe un error de validación",3,Highest,Sprint 2,Formalización_del_vendedor
+Story,CS-5 cargar mi licencia municipal y mi carnet de sanidad con su archivo,"Como vendedor, quiero cargar mi licencia municipal y mi carnet de sanidad con su archivo, para demostrar que estoy formalizado.
+
+Criterios de aceptación:
+- Dado un archivo PDF, PNG o JPG de hasta 2 MB, cuando lo cargo, entonces se guarda en almacenamiento privado
+- Dada una fecha de vencimiento anterior a la de emisión, cuando la cargo, entonces es rechazada
+- Dado un número de licencia ya registrado, cuando lo cargo, entonces recibo 409",5,Highest,Sprint 2,Formalización_del_vendedor
+Story,CS-8 reportar un puesto sin crear cuenta,"Como consumidor, quiero reportar un puesto sin crear cuenta, para alertar a la municipalidad si me vendieron pota como pescado o me hizo daño.
+
+Criterios de aceptación:
+- Dado un puesto, cuando envío un reporte con tipo y descripción, entonces queda abierto
+- Dado un inspector, cuando abre su bandeja, entonces ve primero los reportes abiertos y puede cerrarlos",5,High,Sprint 2,Fiscalización_municipal
+Story,CS-6 registrar la temperatura y el hielo de mi conservadora,"Como vendedor, quiero registrar la temperatura y el hielo de mi conservadora, para demostrar la cadena de frío a mis clientes.
+
+Criterios de aceptación:
+- Dada una temperatura mayor a 4 °C, cuando la registro, entonces el sistema me muestra una alerta
+- Dado un control dentro de las últimas 24 horas y a 4 °C o menos, cuando se calcula el sello, entonces cuenta como cadena de frío vigente",3,Highest,Sprint 3,Formalización_del_vendedor
+Story,"CS-7 registrar una inspección con higiene, temperatura y veracidad del rotu","Como inspector municipal, quiero registrar una inspección con higiene, temperatura y veracidad del rotulado, para aprobar, observar o clausurar un puesto con evidencia.
+
+Criterios de aceptación:
+- Dado rotulado no veraz (pota vendida como pescado), cuando intento aprobar, entonces el sistema lo impide
+- Dado un resultado clausurado, cuando se guarda, entonces el puesto pasa a suspendido y su sello a rojo",5,Highest,Sprint 3,Fiscalización_municipal
+Story,CS-9 crear cuentas de inspector,"Como administrador, quiero crear cuentas de inspector, para que solo personal municipal pueda inspeccionar.
+
+Criterios de aceptación:
+- Dado un administrador, cuando crea un usuario con rol inspector, entonces puede iniciar sesión
+- Dado un vendedor, cuando intenta crear usuarios, entonces recibe 403",2,High,Sprint 3,Fiscalización_municipal
+Story,CS-12 ver los puestos verificados en un mapa,"Como consumidor, quiero ver los puestos verificados en un mapa, para encontrar el más cercano.
+
+Criterios de aceptación:
+",8,Medium,,Transparencia_para_el_consumidor
+Story,CS-13 recibir un aviso antes de que venza mi licencia o carnet,"Como vendedor, quiero recibir un aviso antes de que venza mi licencia o carnet, para renovarlo a tiempo y no perder mi sello.
+
+Criterios de aceptación:
+- Dada una licencia o carnet que vence en 15 días o menos, cuando el vendedor entra a su panel, entonces ve el aviso de renovación",3,Medium,Sprint 3,Formalización_del_vendedor
+Story,CS-14 un tablero con indicadores de formalización por distrito,"Como funcionario municipal, quiero un tablero con indicadores de formalización por distrito, para priorizar operativos.
+
+Criterios de aceptación:
+",8,Low,,Fiscalización_municipal
