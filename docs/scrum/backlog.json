@@ -1,0 +1,324 @@
+{
+ "producto": "Ceviche Seguro",
+ "vision": "Que ningún consumidor de Lima coma ceviche de pota sin saber si el puesto tiene licencia, carnet de sanidad, cadena de frío y si el producto que vende es el que declara.",
+ "velocidad_planificada": 20,
+ "duracion_sprint": "1 semana",
+ "epicas": {
+  "E1": "Transparencia para el consumidor",
+  "E2": "Formalización del vendedor",
+  "E3": "Fiscalización municipal",
+  "E4": "Plataforma y DevOps"
+ },
+ "historias": [
+  {
+   "id": "CS-1",
+   "epica": "E4",
+   "rol": "equipo de desarrollo",
+   "quiero": "un modelo de datos relacional normalizado con datos de prueba",
+   "para": "que todas las historias guarden puestos, licencias, controles e inspecciones sin duplicar información",
+   "pts": 5,
+   "moscow": "Must",
+   "sprint": 1,
+   "ca": [
+    "Dado el script de migración, cuando se ejecuta dos veces, entonces no falla ni duplica datos",
+    "Dada la base creada, cuando se consulta, entonces existen 7 tablas en 3FN con claves foráneas y restricciones CHECK",
+    "Dados los datos demo, cuando se listan los puestos, entonces hay al menos un puesto verde, uno amarillo y uno rojo"
+   ]
+  },
+  {
+   "id": "CS-2",
+   "epica": "E1",
+   "rol": "consumidor",
+   "quiero": "buscar puestos de ceviche por distrito y ver su sello sanitario y el producto que declaran",
+   "para": "decidir dónde comer sin arriesgar mi salud ni que me vendan pota como pescado",
+   "pts": 8,
+   "moscow": "Must",
+   "sprint": 1,
+   "ca": [
+    "Dado un distrito, cuando filtro, entonces veo solo los puestos de ese distrito con su sello verde, amarillo o rojo",
+    "Dado un puesto con licencia vencida, cuando lo consulto, entonces su sello es rojo y se muestra el motivo",
+    "Dado un puesto cuyo último control de frío supera 4 °C, cuando lo consulto, entonces su sello no es verde",
+    "Dado cualquier puesto, cuando lo veo, entonces se muestra si vende ceviche de pota, de pescado o mixto"
+   ]
+  },
+  {
+   "id": "CS-10",
+   "epica": "E4",
+   "rol": "equipo de desarrollo",
+   "quiero": "un pipeline de GitHub Actions que construya, pruebe y despliegue",
+   "para": "integrar cambios sin romper producción y desplegar sin pasos manuales",
+   "pts": 5,
+   "moscow": "Must",
+   "sprint": 1,
+   "ca": [
+    "Dado un Pull Request hacia develop o main, cuando se abre, entonces corren las pruebas unitarias e integración con PostgreSQL",
+    "Dado un push a main con pruebas en verde, cuando termina el CI, entonces se despliega a Azure App Service",
+    "Dado el despliegue, cuando termina, entonces /health responde 200 (prueba de humo)",
+    "Dada una dependencia con vulnerabilidad alta, cuando corre el CI, entonces el pipeline falla"
+   ]
+  },
+  {
+   "id": "CS-11",
+   "epica": "E4",
+   "rol": "equipo de desarrollo",
+   "quiero": "la infraestructura en Azure (App Service, PostgreSQL Flexible, Blob, VNet)",
+   "para": "tener el sistema en una URL pública con base de datos privada",
+   "pts": 3,
+   "moscow": "Must",
+   "sprint": 1,
+   "ca": [
+    "Dado el script de infraestructura, cuando se ejecuta en una región permitida, entonces crea todos los recursos",
+    "Dada la base de datos, cuando se intenta conectar desde internet, entonces no es accesible (solo desde la VNet)",
+    "Dada la URL pública, cuando se abre, entonces carga la aplicación por HTTPS"
+   ]
+  },
+  {
+   "id": "CS-3",
+   "epica": "E2",
+   "rol": "vendedor",
+   "quiero": "registrarme e iniciar sesión",
+   "para": "gestionar mi puesto y que solo yo pueda modificarlo",
+   "pts": 5,
+   "moscow": "Must",
+   "sprint": 2,
+   "ca": [
+    "Dado un correo nuevo y una clave de 8 o más caracteres, cuando me registro, entonces se crea mi cuenta con rol vendedor",
+    "Dadas credenciales incorrectas, cuando inicio sesión, entonces recibo un error sin revelar cuál dato falló",
+    "Dado un vendedor, cuando intenta registrar una inspección, entonces recibe 403"
+   ]
+  },
+  {
+   "id": "CS-4",
+   "epica": "E2",
+   "rol": "vendedor",
+   "quiero": "registrar mi puesto con su distrito, tipo y el producto que vendo",
+   "para": "aparecer en el buscador y empezar mi formalización",
+   "pts": 3,
+   "moscow": "Must",
+   "sprint": 2,
+   "ca": [
+    "Dado un vendedor autenticado, cuando registra su puesto, entonces queda en estado pendiente y sello rojo",
+    "Dado un producto distinto de pota, pescado o mixto, cuando registra, entonces recibe un error de validación"
+   ]
+  },
+  {
+   "id": "CS-5",
+   "epica": "E2",
+   "rol": "vendedor",
+   "quiero": "cargar mi licencia municipal y mi carnet de sanidad con su archivo",
+   "para": "demostrar que estoy formalizado",
+   "pts": 5,
+   "moscow": "Must",
+   "sprint": 2,
+   "ca": [
+    "Dado un archivo PDF, PNG o JPG de hasta 2 MB, cuando lo cargo, entonces se guarda en almacenamiento privado",
+    "Dada una fecha de vencimiento anterior a la de emisión, cuando la cargo, entonces es rechazada",
+    "Dado un número de licencia ya registrado, cuando lo cargo, entonces recibo 409"
+   ]
+  },
+  {
+   "id": "CS-8",
+   "epica": "E3",
+   "rol": "consumidor",
+   "quiero": "reportar un puesto sin crear cuenta",
+   "para": "alertar a la municipalidad si me vendieron pota como pescado o me hizo daño",
+   "pts": 5,
+   "moscow": "Should",
+   "sprint": 2,
+   "ca": [
+    "Dado un puesto, cuando envío un reporte con tipo y descripción, entonces queda abierto",
+    "Dado un inspector, cuando abre su bandeja, entonces ve primero los reportes abiertos y puede cerrarlos"
+   ]
+  },
+  {
+   "id": "CS-6",
+   "epica": "E2",
+   "rol": "vendedor",
+   "quiero": "registrar la temperatura y el hielo de mi conservadora",
+   "para": "demostrar la cadena de frío a mis clientes",
+   "pts": 3,
+   "moscow": "Must",
+   "sprint": 3,
+   "ca": [
+    "Dada una temperatura mayor a 4 °C, cuando la registro, entonces el sistema me muestra una alerta",
+    "Dado un control dentro de las últimas 24 horas y a 4 °C o menos, cuando se calcula el sello, entonces cuenta como cadena de frío vigente"
+   ]
+  },
+  {
+   "id": "CS-7",
+   "epica": "E3",
+   "rol": "inspector municipal",
+   "quiero": "registrar una inspección con higiene, temperatura y veracidad del rotulado",
+   "para": "aprobar, observar o clausurar un puesto con evidencia",
+   "pts": 5,
+   "moscow": "Must",
+   "sprint": 3,
+   "ca": [
+    "Dado rotulado no veraz (pota vendida como pescado), cuando intento aprobar, entonces el sistema lo impide",
+    "Dado un resultado clausurado, cuando se guarda, entonces el puesto pasa a suspendido y su sello a rojo"
+   ]
+  },
+  {
+   "id": "CS-9",
+   "epica": "E3",
+   "rol": "administrador",
+   "quiero": "crear cuentas de inspector",
+   "para": "que solo personal municipal pueda inspeccionar",
+   "pts": 2,
+   "moscow": "Should",
+   "sprint": 3,
+   "ca": [
+    "Dado un administrador, cuando crea un usuario con rol inspector, entonces puede iniciar sesión",
+    "Dado un vendedor, cuando intenta crear usuarios, entonces recibe 403"
+   ]
+  },
+  {
+   "id": "CS-12",
+   "epica": "E1",
+   "rol": "consumidor",
+   "quiero": "ver los puestos verificados en un mapa",
+   "para": "encontrar el más cercano",
+   "pts": 8,
+   "moscow": "Could",
+   "sprint": null,
+   "ca": []
+  },
+  {
+   "id": "CS-13",
+   "epica": "E2",
+   "rol": "vendedor",
+   "quiero": "recibir un aviso antes de que venza mi licencia o carnet",
+   "para": "renovarlo a tiempo y no perder mi sello",
+   "pts": 3,
+   "moscow": "Could",
+   "sprint": 3,
+   "ca": [
+    "Dada una licencia o carnet que vence en 15 días o menos, cuando el vendedor entra a su panel, entonces ve el aviso de renovación"
+   ]
+  },
+  {
+   "id": "CS-14",
+   "epica": "E3",
+   "rol": "funcionario municipal",
+   "quiero": "un tablero con indicadores de formalización por distrito",
+   "para": "priorizar operativos",
+   "pts": 8,
+   "moscow": "Won't (esta versión)",
+   "sprint": null,
+   "ca": []
+  }
+ ],
+ "sprints": [
+  {
+   "n": 1,
+   "objetivo": "El consumidor puede consultar en una URL pública el sello sanitario de los puestos, con el pipeline CI/CD funcionando.",
+   "historias": [
+    "CS-1",
+    "CS-2",
+    "CS-10",
+    "CS-11"
+   ]
+  },
+  {
+   "n": 2,
+   "objetivo": "El vendedor puede formalizarse en línea (cuenta, puesto, licencia y carnet) y el consumidor puede reportar.",
+   "historias": [
+    "CS-3",
+    "CS-4",
+    "CS-5",
+    "CS-8"
+   ]
+  },
+  {
+   "n": 3,
+   "objetivo": "La municipalidad fiscaliza: inspecciones con bloqueo por rotulado falso, cadena de frío y cuentas de inspector.",
+   "historias": [
+    "CS-6",
+    "CS-7",
+    "CS-9",
+    "CS-13"
+   ],
+   "nota": "Se planifican 13 de 20 puntos: la capacidad restante se reserva para pruebas de extremo a extremo, correcciones de la Sprint Review 2 y documentación."
+  }
+ ],
+ "sprint1_tareas": [
+  [
+   "CS-1",
+   "Diseñar modelo ER y normalizar a 3FN",
+   2
+  ],
+  [
+   "CS-1",
+   "Script schema.sql idempotente",
+   2
+  ],
+  [
+   "CS-1",
+   "Datos demo (seed) verde/amarillo/rojo",
+   1
+  ],
+  [
+   "CS-2",
+   "Función pura calcularSello con pruebas unitarias",
+   4
+  ],
+  [
+   "CS-2",
+   "Endpoint GET /api/puestos con filtros",
+   3
+  ],
+  [
+   "CS-2",
+   "Pantalla de consulta con tarjetas y motivos",
+   3
+  ],
+  [
+   "CS-2",
+   "Prueba de integración del endpoint",
+   2
+  ],
+  [
+   "CS-10",
+   "Workflow CI con PostgreSQL de servicio",
+   2
+  ],
+  [
+   "CS-10",
+   "Job de despliegue y prueba de humo",
+   2
+  ],
+  [
+   "CS-10",
+   "Proteger main y develop (PR obligatorio)",
+   1
+  ],
+  [
+   "CS-11",
+   "Script de infraestructura Azure",
+   3
+  ],
+  [
+   "CS-11",
+   "Secreto publish profile y variable en GitHub",
+   1
+  ]
+ ],
+ "burndown_sprint1": {
+  "dias": [
+   "Día 0",
+   "Lun",
+   "Mar",
+   "Mié",
+   "Jue",
+   "Vie"
+  ],
+  "real": [
+   21,
+   21,
+   16,
+   13,
+   5,
+   0
+  ]
+ }
+}
