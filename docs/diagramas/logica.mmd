@@ -1,0 +1,30 @@
+flowchart LR
+  subgraph U["Usuarios"]
+    C["Consumidor<br/>(sin cuenta)"]
+    V["Vendedor"]
+    I["Inspector municipal"]
+    A["Administrador"]
+  end
+  subgraph P["Capa de presentación"]
+    WEB["Aplicación web<br/>HTML · CSS · JS<br/>Consultar · Reportar · Paneles por rol"]
+  end
+  subgraph N["Capa de negocio — API REST Node.js / Express"]
+    AUTH["Autenticación y roles<br/>JWT · bcrypt"]
+    PUE["Puestos y licencias"]
+    FRIO["Cadena de frío<br/>alerta &gt; 4 °C"]
+    INS["Inspecciones<br/>bloquea aprobar pota mal rotulada"]
+    REP["Reportes ciudadanos"]
+    SELLO["Motor del sello sanitario<br/>verde · amarillo · rojo"]
+  end
+  subgraph D["Capa de datos"]
+    DB[("PostgreSQL<br/>7 tablas 3FN")]
+    FS[["Almacén de archivos<br/>licencias y carnets"]]
+  end
+  MON["Monitoreo<br/>logs y métricas"]
+  C & V & I & A --> WEB
+  WEB -- "HTTPS / JSON" --> AUTH
+  AUTH --> PUE & FRIO & INS & REP
+  PUE & FRIO & INS --> SELLO
+  PUE & FRIO & INS & REP & SELLO --> DB
+  PUE --> FS
+  N -.-> MON
