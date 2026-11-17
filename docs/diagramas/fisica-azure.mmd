@@ -1,0 +1,29 @@
+flowchart TB
+  USR["Usuarios en Lima<br/>navegador / celular"]
+  GH["GitHub<br/>repositorio + GitHub Actions<br/>CI: build · test · audit<br/>CD: deploy a main"]
+  subgraph AZ["Microsoft Azure — suscripción Azure for Students · región permitida más cercana"]
+    AFD["Azure Front Door Standard<br/>CDN + TLS + WAF<br/>(opcional, solo para la demo)"]
+    subgraph RG["Resource Group rg-ceviche-seguro"]
+      subgraph VNET["Virtual Network 10.10.0.0/16"]
+        subgraph S1["snet-app"]
+          VI["Integración VNet de App Service<br/>subred 10.10.1.0/24<br/>delegada a Microsoft.Web/serverFarms"]
+        end
+        subgraph S2["snet-db"]
+          PG[("Azure Database for PostgreSQL<br/>Flexible Server Burstable B1ms<br/>PostgreSQL 16 · subred 10.10.2.0/24<br/>acceso privado, sin IP pública")]
+        end
+      end
+      subgraph ASP["App Service Plan Linux B1"]
+        LB["Balanceador de carga<br/>integrado de App Service"]
+        APP["Web App Node 22 LTS<br/>&lt;app&gt;.azurewebsites.net<br/>health check /health"]
+      end
+      BLOB[["Azure Blob Storage<br/>contenedor privado 'licencias'<br/>TLS 1.2"]]
+      AI["Application Insights<br/>monitoreo"]
+    end
+  end
+  USR -- HTTPS --> AFD --> LB
+  USR -. "HTTPS (sin Front Door)" .-> LB
+  LB --> APP
+  APP --> VI -- "5432 privado, SSL" --> PG
+  APP -- "SDK @azure/storage-blob" --> BLOB
+  APP -- telemetría --> AI
+  GH -- "azure/webapps-deploy@v3<br/>publish profile (secreto)" --> APP
