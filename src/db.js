@@ -7,6 +7,7 @@ const pool = new Pool({
   connectionString: config.databaseUrl,
   ssl: config.dbSsl ? { rejectUnauthorized: true } : false,
   max: 10,
+  connectionTimeoutMillis: 10000, // si la BD no responde, falla en 10 s en lugar de quedarse colgada
 });
 
 // NUMERIC llega como texto desde pg: lo convertimos a número para la API.
