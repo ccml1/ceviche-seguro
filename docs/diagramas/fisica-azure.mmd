@@ -1,29 +1,37 @@
 flowchart TB
   USR["Usuarios en Lima<br/>navegador / celular"]
-  GH["GitHub<br/>repositorio + GitHub Actions<br/>CI: build · test · audit<br/>CD: deploy a main"]
-  subgraph AZ["Microsoft Azure — suscripción Azure for Students · región permitida más cercana"]
-    AFD["Azure Front Door Standard<br/>CDN + TLS + WAF<br/>(opcional, solo para la demo)"]
-    subgraph RG["Resource Group rg-ceviche-seguro"]
-      subgraph VNET["Virtual Network 10.10.0.0/16"]
-        subgraph S1["snet-app"]
-          VI["Integración VNet de App Service<br/>subred 10.10.1.0/24<br/>delegada a Microsoft.Web/serverFarms"]
+  ATK["Atacante / bots"]
+  GH["GitHub Actions<br/>CI: gitleaks · CodeQL · pruebas · npm audit<br/>CD: deploy a main + prueba de humo"]
+  subgraph AZ["Microsoft Azure · Azure for Students · región Brazil South (la más cercana a Perú)"]
+    subgraph EDGE["Borde (opcional por costo, solo demo)"]
+      AFD["Azure Front Door Standard<br/>CDN + certificado TLS"]
+      WAF["WAF en modo Prevención<br/>límite de peticiones por IP<br/>bloqueo de inyección SQL / XSS"]
+    end
+    subgraph RG["Resource Group practica-pfc"]
+      subgraph VNET["Virtual Network 10.10.0.0/16 (segmentación de red)"]
+        subgraph S1["snet-app 10.10.1.0/24"]
+          VI["Integración VNet de App Service<br/>todo el tráfico de salida por la VNet<br/>service endpoint a Storage"]
         end
-        subgraph S2["snet-db"]
-          PG[("Azure Database for PostgreSQL<br/>Flexible Server Burstable B1ms<br/>PostgreSQL 16 · subred 10.10.2.0/24<br/>acceso privado, sin IP pública")]
+        subgraph S2["snet-db 10.10.2.0/24"]
+          NSG{{"NSG nsg-db (firewall de red)<br/>permite solo snet-app → 5432<br/>deniega el resto"}}
+          PG[("Azure Database for PostgreSQL<br/>Flexible Server B1ms · v16<br/>sin IP pública · TLS · backups 7 días")]
         end
       end
       subgraph ASP["App Service Plan Linux B1"]
-        LB["Balanceador de carga<br/>integrado de App Service"]
-        APP["Web App Node 22 LTS<br/>&lt;app&gt;.azurewebsites.net<br/>health check /health"]
+        LB["Balanceador integrado<br/>de App Service"]
+        APP["Web App Node 22 LTS<br/>HTTPS obligatorio · TLS 1.2 · FTPS off<br/>restricción de acceso: solo Front Door<br/>health check /health"]
       end
-      BLOB[["Azure Blob Storage<br/>contenedor privado 'licencias'<br/>TLS 1.2"]]
-      AI["Application Insights<br/>monitoreo"]
+      MI(["Identidad administrada<br/>(IAM: rol Key Vault Secrets User)"])
+      KV["Azure Key Vault<br/>DATABASE_URL · JWT_SECRET<br/>cadena del Storage"]
+      BLOB[["Azure Blob Storage<br/>contenedor privado 'licencias'<br/>firewall: solo snet-app"]]
+      AI["Application Insights + alerta 5xx<br/>(Monitor)"]
     end
   end
-  USR -- HTTPS --> AFD --> LB
-  USR -. "HTTPS (sin Front Door)" .-> LB
+  USR -- HTTPS --> AFD --> WAF --> LB
+  ATK -. bloqueado .-> WAF
   LB --> APP
-  APP --> VI -- "5432 privado, SSL" --> PG
-  APP -- "SDK @azure/storage-blob" --> BLOB
+  APP --> VI --> NSG --> PG
+  VI --> BLOB
+  APP --- MI -- "lee secretos" --> KV
   APP -- telemetría --> AI
-  GH -- "azure/webapps-deploy@v3<br/>publish profile (secreto)" --> APP
+  GH -- "publish profile en GitHub Secrets" --> APP
