@@ -1,0 +1,24 @@
+# DevSecOps: análisis estático de seguridad del código (SAST) con CodeQL.
+# Busca inyección SQL, XSS, rutas inseguras, etc. Los hallazgos aparecen en Security > Code scanning.
+name: CodeQL
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+  schedule:
+    - cron: '23 6 * * 1'
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  analizar:
+    name: Análisis estático (JavaScript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+      - uses: github/codeql-action/analyze@v3

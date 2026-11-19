@@ -1,6 +1,6 @@
 # Pipeline CI/CD de Ceviche Seguro
 #  - CI (todas las ramas con PR hacia develop o main): instala, prueba (unitarias + integración con PostgreSQL),
-#    mide cobertura y revisa vulnerabilidades de dependencias (DevSecOps).
+#    mide cobertura, revisa vulnerabilidades de dependencias y busca secretos expuestos (DevSecOps).
 #  - CD (solo push a main): empaqueta, despliega en Azure App Service y hace una prueba de humo contra /health.
 name: CI-CD
 
@@ -19,6 +19,18 @@ env:
   AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
 
 jobs:
+  secretos:
+    name: Escaneo de secretos (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Buscar claves, tokens y contraseñas en el historial
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz | tar xz gitleaks
+          ./gitleaks git . --no-banner --redact -v
+
   ci:
     name: Build y pruebas
     runs-on: ubuntu-latest
@@ -63,7 +75,7 @@ jobs:
 
   deploy:
     name: Despliegue en Azure App Service
-    needs: ci
+    needs: [secretos, ci]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
@@ -82,5 +94,6 @@ jobs:
           package: app.zip
       - name: Prueba de humo contra /health
         run: |
-          curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors \
-            "https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health"
+          URL="${{ vars.SMOKE_URL }}"
+          [ -z "$URL" ] && URL="https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health"
+          curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors "$URL"
